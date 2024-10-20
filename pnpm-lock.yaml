@@ -45,6 +45,9 @@ importers:
       eslint:
         specifier: ^9.12.0
         version: 9.12.0(jiti@2.3.3)
+      telegram-webapps:
+        specifier: ^7.10.0
+        version: 7.10.0
       vue-tsc:
         specifier: ^2.1.6
         version: 2.1.6(typescript@5.4.5)
@@ -4662,6 +4665,9 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
+
+  telegram-webapps@7.10.0:
+    resolution: {integrity: sha512-n4GwQZTrXb+hfdoBav2G66VKRUdEgpHAlueaJ/V11hEgupfnJ6JBG9nARXC2jw++QpDUgkueqo/5z3wd9TC3tg==}
 
   terser-webpack-plugin@5.3.10:
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
@@ -10356,6 +10362,8 @@ snapshots:
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
+
+  telegram-webapps@7.10.0: {}
 
   terser-webpack-plugin@5.3.10(esbuild@0.23.1)(webpack@5.95.0(esbuild@0.23.1)):
     dependencies:

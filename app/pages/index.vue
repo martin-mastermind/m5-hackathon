@@ -1,9 +1,16 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const initData = ref('')
+
+onMounted(() => {
+  if (Telegram.WebApp) {
+    initData.value = Telegram.WebApp.initData
+  }
+})
+</script>
 
 <template>
   <div class="centered">
-    <h1>M5 Hackathon</h1>
-    <NuxtLink to="/" external> refresh </NuxtLink>
+    {{ initData }}
   </div>
 </template>
 
