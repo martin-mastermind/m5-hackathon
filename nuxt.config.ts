@@ -4,6 +4,12 @@ export default defineNuxtConfig({
 
   modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/scripts'],
 
+  app: {
+    head: {
+      script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
+    },
+  },
+
   hub: {
     database: true,
   },

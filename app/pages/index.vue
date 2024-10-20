@@ -2,9 +2,12 @@
 const initData = ref('')
 
 onMounted(() => {
-  if (Telegram.WebApp) {
-    initData.value = Telegram.WebApp.initData
+  if (!Telegram) {
+    initData.value = 'Telegram is not installed'
+    return
   }
+
+  initData.value = Telegram.WebApp.initData
 })
 </script>
 

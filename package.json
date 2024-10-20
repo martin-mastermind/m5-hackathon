@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@nuxt/eslint": "^0.5.7",
-    "@nuxt/scripts": "^0.9.5",
     "@nuxthub/core": "^0.7.27",
     "drizzle-orm": "^0.35.2",
     "gramio": "^0.0.51",
