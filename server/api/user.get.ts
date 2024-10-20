@@ -7,10 +7,13 @@ type Query = {
   isPremium: number
 }
 
+/* Todo: 
+  - Add telegram validation
+  - Add creation of car if user new
+  - Add friends row if referer ID exists
+  */
 export default defineEventHandler(async (event) => {
   const { telegramId, firstName, lastName: secondName, isPremium } = getQuery<Query>(event)
-
-  console.log(telegramId, firstName, secondName, isPremium)
 
   if (!telegramId || isNaN(telegramId)) {
     throw createError({
@@ -43,6 +46,11 @@ export default defineEventHandler(async (event) => {
       .returning()
       .get()
   }
+
+  setCookie(event, AUTH_COOKIE, String(telegramId), {
+    httpOnly: true,
+    secure: true,
+  })
 
   return {
     user,
