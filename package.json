@@ -16,6 +16,7 @@
     "@nuxt/eslint": "^0.5.7",
     "@nuxthub/core": "^0.7.27",
     "drizzle-orm": "^0.35.2",
+    "gramio": "^0.0.51",
     "nuxt": "^3.13.2",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"

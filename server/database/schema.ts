@@ -2,11 +2,12 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  telegramId: integer('telegram_id').notNull(),
+  telegramId: integer('telegram_id').notNull().unique(),
   avatar: text('avatar').notNull().default(''),
   secondName: text('second_name').notNull().default(''),
-  firstName: text('first_name').notNull().default(''),
+  firstName: text('first_name').notNull(),
   gas: integer('gas').notNull().default(0),
+  isPremium: integer('is_premium').notNull(), // 0 - not premium, 1 - premium
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(new Date()),
 })
 
