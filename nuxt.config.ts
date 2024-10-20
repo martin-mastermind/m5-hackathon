@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-07-30',
   future: { compatibilityVersion: 4 },
 
-  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/scripts'],
+  modules: ['@nuxthub/core', '@nuxt/eslint'],
 
   app: {
     head: {
