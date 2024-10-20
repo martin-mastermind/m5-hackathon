@@ -1,4 +1,5 @@
 import { Bot } from 'gramio'
+import { createHmac } from 'crypto'
 
 type Query = {
   telegramId: number
@@ -34,17 +35,25 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     const avatar = await _getAvatar(telegramId)
 
-    user = await useDrizzle()
-      .insert(tables.users)
-      .values({
-        telegramId,
-        firstName,
-        secondName,
-        avatar,
-        isPremium,
+    user = await useDrizzle().transaction(async (tx) => {
+      const newUser = await tx
+        .insert(tables.users)
+        .values({
+          telegramId,
+          firstName,
+          secondName,
+          avatar,
+          isPremium,
+        })
+        .returning()
+        .get()
+
+      await tx.insert(tables.userCar).values({
+        userId: newUser.id,
       })
-      .returning()
-      .get()
+
+      return newUser
+    })
   }
 
   setCookie(event, AUTH_COOKIE, String(telegramId), {
@@ -56,6 +65,18 @@ export default defineEventHandler(async (event) => {
     user,
   }
 })
+
+const _verifyData = (checkString: string, hash: string) => {
+  if (!process.env.TELEGRAM_TOKEN) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'TELEGRAM_TOKEN is not defined',
+    })
+  }
+
+  const secretKey = createHmac('sha256', process.env.TELEGRAM_TOKEN).update('WebAppData').digest('base64')
+  return createHmac('sha256', secretKey).update(checkString).digest('hex') === hash
+}
 
 const _getAvatar = async (telegramId: number) => {
   if (!process.env.TELEGRAM_TOKEN) {
