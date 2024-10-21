@@ -2,13 +2,11 @@ import { Bot } from 'gramio'
 
 type Query = {
   initData: string
+  refererId?: number
 }
 
-/* Todo: 
-  - Add friends row if referer ID exists
-  */
 export default defineEventHandler(async (event) => {
-  const { initData } = getQuery<Query>(event)
+  const { initData, refererId } = getQuery<Query>(event)
   const {
     id: telegramId,
     first_name: firstName,
@@ -53,6 +51,13 @@ export default defineEventHandler(async (event) => {
         })
         .returning(_carFields)
         .get()
+
+      if (refererId) {
+        await tx.insert(tables.userFriends).values({
+          userId: newUser.id,
+          friendId: refererId,
+        })
+      }
 
       return {
         avatar: newUser.avatar,
