@@ -1,4 +1,4 @@
-import { Telegram } from 'telegraf'
+import { Telegraf } from 'telegraf'
 
 type Body = {
   initData: string
@@ -105,11 +105,10 @@ const _getAvatar = async (telegramId: number) => {
     })
   }
 
-  const bot = new Telegram(process.env.TELEGRAM_TOKEN)
+  const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
 
-  const photos = await bot.getUserProfilePhotos(telegramId, 0, 1)
-
-  const avatar = await bot.getFile(photos.photos[0][0].file_id)
+  const photos = await bot.telegram.getUserProfilePhotos(telegramId, 0, 1)
+  const avatar = await bot.telegram.getFile(photos.photos[0][0].file_id)
 
   return `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${avatar.file_path}`
 }
