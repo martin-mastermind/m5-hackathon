@@ -1,7 +1,0 @@
-name = "m5-hackaton"
-pages_build_output_dir = "./dist"
-compatibility_flags = [ "nodejs_compat" ]
-compatibility_date = "2024-09-23"
-
-[vars]
-TELEGRAM_TOKEN = 8116672124:AAEZsIdVLUJD76yHKAof61_Lu7zOP_zh3_g
