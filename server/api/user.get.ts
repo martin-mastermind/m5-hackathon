@@ -1,36 +1,31 @@
 import { Bot } from 'gramio'
-import { createHmac } from 'crypto'
 
 type Query = {
-  telegramId: number
-  firstName: string
-  lastName?: string
-  isPremium: number
+  initData: string
 }
 
 /* Todo: 
-  - Add telegram validation
-  - Add creation of car if user new
   - Add friends row if referer ID exists
   */
 export default defineEventHandler(async (event) => {
-  const { telegramId, firstName, lastName: secondName, isPremium } = getQuery<Query>(event)
+  const { initData } = getQuery<Query>(event)
+  const {
+    id: telegramId,
+    first_name: firstName,
+    last_name: secondName,
+    is_premium: isPremium,
+  } = getTelegramData(initData)
 
-  if (!telegramId || isNaN(telegramId)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad telegramId',
-    })
-  }
-
-  if (!firstName) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad firstName',
-    })
-  }
-
-  let user = (await useDrizzle().select().from(tables.users).where(eq(tables.users.telegramId, telegramId)))[0]
+  let user = (
+    await useDrizzle()
+      .select({
+        ..._userFields,
+        car: _carFields,
+      })
+      .from(tables.users)
+      .innerJoin(tables.userCar, eq(tables.userCar.userId, tables.users.id))
+      .where(eq(tables.users.telegramId, telegramId))
+  )[0]
 
   if (!user) {
     const avatar = await _getAvatar(telegramId)
@@ -41,18 +36,34 @@ export default defineEventHandler(async (event) => {
         .values({
           telegramId,
           firstName,
-          secondName,
+          secondName: secondName || '',
           avatar,
-          isPremium,
+          isPremium: isPremium ? 1 : 0,
         })
-        .returning()
+        .returning({
+          id: tables.users.id,
+          ..._userFields,
+        })
         .get()
 
-      await tx.insert(tables.userCar).values({
-        userId: newUser.id,
-      })
+      const newUserCar = await tx
+        .insert(tables.userCar)
+        .values({
+          userId: newUser.id,
+        })
+        .returning(_carFields)
+        .get()
 
-      return newUser
+      return {
+        avatar: newUser.avatar,
+        firstName: newUser.firstName,
+        secondName: newUser.secondName,
+        isPremium: newUser.isPremium,
+        gas: newUser.gas,
+        car: {
+          ...newUserCar,
+        },
+      }
     })
   }
 
@@ -66,16 +77,19 @@ export default defineEventHandler(async (event) => {
   }
 })
 
-const _verifyData = (checkString: string, hash: string) => {
-  if (!process.env.TELEGRAM_TOKEN) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'TELEGRAM_TOKEN is not defined',
-    })
-  }
+const _userFields = {
+  avatar: tables.users.avatar,
+  firstName: tables.users.firstName,
+  secondName: tables.users.secondName,
+  isPremium: tables.users.isPremium,
+  gas: tables.users.gas,
+}
 
-  const secretKey = createHmac('sha256', process.env.TELEGRAM_TOKEN).update('WebAppData').digest('base64')
-  return createHmac('sha256', secretKey).update(checkString).digest('hex') === hash
+const _carFields = {
+  engineLvl: tables.userCar.engineLvl,
+  chassisLvl: tables.userCar.chassisLvl,
+  brakesLvl: tables.userCar.brakesLvl,
+  visualLvl: tables.userCar.visualLvl,
 }
 
 const _getAvatar = async (telegramId: number) => {
