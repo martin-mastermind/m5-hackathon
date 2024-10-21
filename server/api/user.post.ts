@@ -1,12 +1,12 @@
 import { Bot } from 'gramio'
 
-type Query = {
+type Body = {
   initData: string
   refererId?: number
 }
 
 export default defineEventHandler(async (event) => {
-  const { initData, refererId } = getQuery<Query>(event)
+  const { initData, refererId } = await readBody<Body>(event)
   const {
     id: telegramId,
     first_name: firstName,
