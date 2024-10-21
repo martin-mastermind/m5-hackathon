@@ -1,11 +1,13 @@
-import { drizzle } from 'drizzle-orm/d1'
-export { sql, eq, and, or } from 'drizzle-orm'
-
+import { drizzle } from 'drizzle-orm/neon-http'
+import { neon } from '@neondatabase/serverless'
 import * as schema from '../database/schema'
+
+export { sql, eq, and, or } from 'drizzle-orm'
 
 export const tables = schema
 
-export const useDrizzle = () => drizzle(hubDatabase(), { schema })
+const sql = neon(process.env.DATABASE_URL as string)
+export const useDrizzle = () => drizzle({ client: sql, schema })
 
 export type User = typeof schema.users.$inferSelect
 

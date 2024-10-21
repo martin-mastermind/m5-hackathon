@@ -1,27 +1,27 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
 
-export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const users = pgTable('users', {
+  id: integer('id').primaryKey(),
   telegramId: integer('telegram_id').notNull().unique(),
   avatar: text('avatar').notNull().default(''),
   secondName: text('second_name').notNull().default(''),
   firstName: text('first_name').notNull(),
   gas: integer('gas').notNull().default(0),
-  isPremium: integer('is_premium').notNull(), // 0 - not premium, 1 - premium
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(new Date()),
+  isPremium: boolean('is_premium').notNull(), // 0 - not premium, 1 - premium
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const userClaims = sqliteTable('user-claims', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const userClaims = pgTable('user-claims', {
+  id: integer('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
-  claimedAt: integer('claimed_at', { mode: 'timestamp' }).notNull().default(new Date()),
+  claimedAt: timestamp('claimed_at').notNull().defaultNow(),
   amount: integer('amount').notNull().default(0),
 })
 
-export const userCar = sqliteTable('user-car', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const userCar = pgTable('user-car', {
+  id: integer('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
@@ -31,8 +31,8 @@ export const userCar = sqliteTable('user-car', {
   visualLvl: integer('visual_lvl').notNull().default(1),
 })
 
-export const userFriends = sqliteTable('user-friends', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const userFriends = pgTable('user-friends', {
+  id: integer('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
@@ -41,28 +41,28 @@ export const userFriends = sqliteTable('user-friends', {
     .references(() => users.id),
 })
 
-export const tasks = sqliteTable('tasks', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const tasks = pgTable('tasks', {
+  id: integer('id').primaryKey(),
   logo: text('text').notNull(),
   name: text('text').notNull(),
   reward: integer('reward').notNull(),
   url: text('url').notNull(),
 })
 
-export const userTasks = sqliteTable('user-tasks', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const userTasks = pgTable('user-tasks', {
+  id: integer('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
   taskId: integer('task_id')
     .notNull()
     .references(() => tasks.id),
-  status: integer('status').notNull().default(0), // 0 - not completed, 1 - completed
+  status: boolean('status').notNull().default(false),
 })
 
-export const games = sqliteTable('games', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  playedAt: integer('played_at', { mode: 'timestamp' }).notNull().default(new Date()),
+export const games = pgTable('games', {
+  id: integer('id').primaryKey(),
+  playedAt: timestamp('played_at').notNull().defaultNow(),
   winnerId: integer('winner_id')
     .notNull()
     .references(() => users.id),

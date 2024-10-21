@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-07-30',
   future: { compatibilityVersion: 4 },
 
-  modules: ['@nuxthub/core', '@nuxt/eslint'],
+  modules: ['@nuxt/eslint'],
 
   app: {
     head: {
@@ -10,15 +10,5 @@ export default defineNuxtConfig({
     },
   },
 
-  hub: {
-    database: true,
-  },
-
   devtools: { enabled: true },
-
-  nitro: {
-    experimental: {
-      openAPI: true,
-    },
-  },
 })
