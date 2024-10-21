@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@nuxt/eslint": "^0.5.7",
-    "@nuxthub/core": "^0.7.27",
+    "@nuxthub/core": "^0.7.34",
     "drizzle-orm": "^0.35.2",
     "gramio": "^0.0.51",
     "node-telegram-bot-api": "^0.66.0",
