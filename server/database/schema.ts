@@ -1,7 +1,7 @@
-import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
+import { pgTable, text, serial, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   telegramId: integer('telegram_id').notNull().unique(),
   avatar: text('avatar').notNull().default(''),
   secondName: text('second_name').notNull().default(''),
@@ -12,7 +12,7 @@ export const users = pgTable('users', {
 })
 
 export const userClaims = pgTable('user-claims', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
@@ -21,7 +21,7 @@ export const userClaims = pgTable('user-claims', {
 })
 
 export const userCar = pgTable('user-car', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
@@ -32,7 +32,7 @@ export const userCar = pgTable('user-car', {
 })
 
 export const userFriends = pgTable('user-friends', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
@@ -42,7 +42,7 @@ export const userFriends = pgTable('user-friends', {
 })
 
 export const tasks = pgTable('tasks', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   logo: text('text').notNull(),
   name: text('text').notNull(),
   reward: integer('reward').notNull(),
@@ -50,7 +50,7 @@ export const tasks = pgTable('tasks', {
 })
 
 export const userTasks = pgTable('user-tasks', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
@@ -61,7 +61,7 @@ export const userTasks = pgTable('user-tasks', {
 })
 
 export const games = pgTable('games', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   playedAt: timestamp('played_at').notNull().defaultNow(),
   winnerId: integer('winner_id')
     .notNull()

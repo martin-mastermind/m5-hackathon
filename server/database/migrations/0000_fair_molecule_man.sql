@@ -1,19 +1,19 @@
 CREATE TABLE IF NOT EXISTS "games" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"played_at" timestamp DEFAULT now() NOT NULL,
 	"winner_id" integer NOT NULL,
 	"loser_id" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "tasks" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"text" text NOT NULL,
 	"reward" integer NOT NULL,
 	"url" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user-car" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"engine_lvl" integer DEFAULT 1 NOT NULL,
 	"chassis_lvl" integer DEFAULT 1 NOT NULL,
@@ -22,27 +22,27 @@ CREATE TABLE IF NOT EXISTS "user-car" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user-claims" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"claimed_at" timestamp DEFAULT now() NOT NULL,
 	"amount" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user-friends" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"friend_id" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user-tasks" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"task_id" integer NOT NULL,
 	"status" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"telegram_id" integer NOT NULL,
 	"avatar" text DEFAULT '' NOT NULL,
 	"second_name" text DEFAULT '' NOT NULL,
