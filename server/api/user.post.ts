@@ -7,6 +7,9 @@ type Body = {
 
 export default defineEventHandler(async (event) => {
   const { initData, refererId } = await readBody<Body>(event)
+
+  console.log('Init data', initData)
+
   const {
     id: telegramId,
     first_name: firstName,
