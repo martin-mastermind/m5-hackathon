@@ -14,8 +14,10 @@ export default defineEventHandler(async (event) => {
     is_premium: isPremium,
   } = getTelegramData(initData)
 
+  const db = useDrizzle()
+
   let user = (
-    await useDrizzle()
+    await db
       .select({
         ..._userFields,
         car: _carFields,
@@ -28,7 +30,7 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     const avatar = await _getAvatar(telegramId)
 
-    user = await useDrizzle().transaction(async (tx) => {
+    user = await db.transaction(async (tx) => {
       const newUser = await tx
         .insert(tables.users)
         .values({
@@ -72,10 +74,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  setCookie(event, AUTH_COOKIE, String(telegramId), {
-    httpOnly: true,
-    secure: true,
-  })
+  addAuthCookie(event, telegramId)
 
   return {
     user,
