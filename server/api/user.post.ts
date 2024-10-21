@@ -31,48 +31,46 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     const avatar = await _getAvatar(telegramId)
 
-    user = await db.transaction(async (tx) => {
-      const newUser = await tx
-        .insert(tables.users)
-        .values({
-          telegramId,
-          firstName,
-          secondName: secondName || '',
-          avatar,
-          isPremium: isPremium ? 1 : 0,
-        })
-        .returning({
-          id: tables.users.id,
-          ..._userFields,
-        })
-        .get()
+    const newUser = await db
+      .insert(tables.users)
+      .values({
+        telegramId,
+        firstName,
+        secondName: secondName || '',
+        avatar,
+        isPremium: isPremium ? 1 : 0,
+      })
+      .returning({
+        id: tables.users.id,
+        ..._userFields,
+      })
+      .get()
 
-      const newUserCar = await tx
-        .insert(tables.userCar)
-        .values({
-          userId: newUser.id,
-        })
-        .returning(_carFields)
-        .get()
+    const newUserCar = await db
+      .insert(tables.userCar)
+      .values({
+        userId: newUser.id,
+      })
+      .returning(_carFields)
+      .get()
 
-      if (refererId) {
-        await tx.insert(tables.userFriends).values({
-          userId: newUser.id,
-          friendId: refererId,
-        })
-      }
+    if (refererId) {
+      await db.insert(tables.userFriends).values({
+        userId: newUser.id,
+        friendId: refererId,
+      })
+    }
 
-      return {
-        avatar: newUser.avatar,
-        firstName: newUser.firstName,
-        secondName: newUser.secondName,
-        isPremium: newUser.isPremium,
-        gas: newUser.gas,
-        car: {
-          ...newUserCar,
-        },
-      }
-    })
+    user = {
+      avatar: newUser.avatar,
+      firstName: newUser.firstName,
+      secondName: newUser.secondName,
+      isPremium: newUser.isPremium,
+      gas: newUser.gas,
+      car: {
+        ...newUserCar,
+      },
+    }
   }
 
   addAuthCookie(event, telegramId)
