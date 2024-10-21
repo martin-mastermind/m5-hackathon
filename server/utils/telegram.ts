@@ -43,6 +43,8 @@ const _isValidTelegramData = (dirtyInitData: string) => {
 
   const initData = new URLSearchParams(dirtyInitData)
 
+  console.log(dirtyInitData, initData)
+
   const hash = initData.get('hash')
   initData.delete('hash')
 
