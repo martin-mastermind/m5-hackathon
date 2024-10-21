@@ -1,4 +1,4 @@
-import { Bot } from 'gramio'
+import TelegramBot from 'node-telegram-bot-api'
 
 type Body = {
   initData: string
@@ -102,14 +102,12 @@ const _getAvatar = async (telegramId: number) => {
     })
   }
 
-  const bot = new Bot(process.env.TELEGRAM_TOKEN)
+  const bot = new TelegramBot(process.env.TELEGRAM_TOKEN)
 
-  const photos = await bot.api.getUserProfilePhotos({
-    user_id: telegramId,
+  const photos = await bot.getUserProfilePhotos(telegramId, {
     limit: 1,
   })
-
-  const avatar = await bot.api.getFile({ file_id: photos.photos[0][0].file_id })
+  const avatar = await bot.getFile(photos.photos[0][0].file_id)
 
   return `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${avatar.file_path}`
 }
