@@ -17,6 +17,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   nitro: {
+    minify: false,
     experimental: {
       openAPI: true,
     },
