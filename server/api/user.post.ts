@@ -1,5 +1,3 @@
-import TelegramBot from 'node-telegram-bot-api'
-
 type Body = {
   initData: string
   refererId?: number
@@ -30,46 +28,48 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     const avatar = await _getAvatar(telegramId)
 
-    const newUser = await db
-      .insert(tables.users)
-      .values({
-        telegramId,
-        firstName,
-        secondName: secondName || '',
-        avatar,
-        isPremium: isPremium ? 1 : 0,
-      })
-      .returning({
-        id: tables.users.id,
-        ..._userFields,
-      })
-      .get()
+    user = await db.transaction(async (tx) => {
+      const newUser = await tx
+        .insert(tables.users)
+        .values({
+          telegramId,
+          firstName,
+          secondName: secondName || '',
+          avatar,
+          isPremium: isPremium ? 1 : 0,
+        })
+        .returning({
+          id: tables.users.id,
+          ..._userFields,
+        })
+        .get()
 
-    const newUserCar = await db
-      .insert(tables.userCar)
-      .values({
-        userId: newUser.id,
-      })
-      .returning(_carFields)
-      .get()
+      const newUserCar = await tx
+        .insert(tables.userCar)
+        .values({
+          userId: newUser.id,
+        })
+        .returning(_carFields)
+        .get()
 
-    if (refererId) {
-      await db.insert(tables.userFriends).values({
-        userId: newUser.id,
-        friendId: refererId,
-      })
-    }
+      if (refererId) {
+        await tx.insert(tables.userFriends).values({
+          userId: newUser.id,
+          friendId: refererId,
+        })
+      }
 
-    user = {
-      avatar: newUser.avatar,
-      firstName: newUser.firstName,
-      secondName: newUser.secondName,
-      isPremium: newUser.isPremium,
-      gas: newUser.gas,
-      car: {
-        ...newUserCar,
-      },
-    }
+      return {
+        avatar: newUser.avatar,
+        firstName: newUser.firstName,
+        secondName: newUser.secondName,
+        isPremium: newUser.isPremium,
+        gas: newUser.gas,
+        car: {
+          ...newUserCar,
+        },
+      }
+    })
   }
 
   addAuthCookie(event, telegramId)
@@ -102,12 +102,15 @@ const _getAvatar = async (telegramId: number) => {
     })
   }
 
-  const bot = new TelegramBot(process.env.TELEGRAM_TOKEN)
+  const { Bot } = await import('gramio')
+  const bot = new Bot(process.env.TELEGRAM_TOKEN)
 
-  const photos = await bot.getUserProfilePhotos(telegramId, {
+  const photos = await bot.api.getUserProfilePhotos({
+    user_id: telegramId,
     limit: 1,
   })
-  const avatar = await bot.getFile(photos.photos[0][0].file_id)
+
+  const avatar = await bot.api.getFile({ file_id: photos.photos[0][0].file_id })
 
   return `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${avatar.file_path}`
 }

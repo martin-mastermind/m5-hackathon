@@ -10,10 +10,6 @@ export default defineNuxtConfig({
     },
   },
 
-  alias: {
-    string_decoder: 'string_decoder/',
-  },
-
   hub: {
     database: true,
   },
