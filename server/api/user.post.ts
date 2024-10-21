@@ -1,4 +1,4 @@
-import { Telegraf } from 'telegraf'
+import { Bot } from 'gramio'
 
 type Body = {
   initData: string
@@ -7,7 +7,6 @@ type Body = {
 
 export default defineEventHandler(async (event) => {
   const { initData, refererId } = await readBody<Body>(event)
-
   const {
     id: telegramId,
     first_name: firstName,
@@ -103,10 +102,14 @@ const _getAvatar = async (telegramId: number) => {
     })
   }
 
-  const bot = new Telegraf(process.env.TELEGRAM_TOKEN)
+  const bot = new Bot(process.env.TELEGRAM_TOKEN)
 
-  const photos = await bot.telegram.getUserProfilePhotos(telegramId, 0, 1)
-  const avatar = await bot.telegram.getFile(photos.photos[0][0].file_id)
+  const photos = await bot.api.getUserProfilePhotos({
+    user_id: telegramId,
+    limit: 1,
+  })
+
+  const avatar = await bot.api.getFile({ file_id: photos.photos[0][0].file_id })
 
   return `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${avatar.file_path}`
 }
