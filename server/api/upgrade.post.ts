@@ -1,57 +1,83 @@
 type Body = {
-  part: 'engine' | 'chassis' | 'brakes' | 'visual'
-}
+  part: PartsNames;
+};
 
-const TEST_COST = 1000
-
-/* Todo:
-  - If level is at ranges, add gas to referer
-*/
 export default defineEventHandler(async (event) => {
-  const telegramId = getAuthFromCookie(event)
-  const db = useDrizzle()
+  const telegramId = getAuthFromCookie(event);
+  const db = useDrizzle();
 
-  const { part } = await readBody<Body>(event)
-  const dbPart = `${part}Lvl` as const
+  const { part } = await readBody<Body>(event);
+  const dbPart = `${part}Lvl` as const;
 
+  // Get user data
   const {
     id,
     gas,
     [dbPart]: partLvl,
+    totalLvl,
   } = (
     await db
       .select({
         id: tables.users.id,
         gas: tables.users.gas,
         [dbPart]: tables.userCar[dbPart],
+        totalLvl: _getTotalLvl(),
       })
       .from(tables.users)
       .innerJoin(tables.userCar, eq(tables.userCar.userId, tables.users.id))
       .where(eq(tables.users.telegramId, telegramId))
-  )[0]
+  )[0];
+  const newPartLvl = partLvl + 1;
 
-  // TODO: calculate cost
-  if (gas < TEST_COST) {
+  // Check if user has enough gas
+  const cost = getPartCost(part, newPartLvl);
+  if (gas < cost) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Not enough gas',
-    })
+      statusMessage: "Not enough gas",
+    });
   }
 
-  const newPartLvl = partLvl + 1
+  // Update user data
+  await Promise.allSettled([
+    db
+      .update(tables.userCar)
+      .set({ [dbPart]: newPartLvl })
+      .where(eq(tables.userCar.userId, id)),
+    db
+      .update(tables.users)
+      .set({ gas: gas - cost })
+      .where(eq(tables.users.id, id)),
+  ]);
 
-  await db
-    .update(tables.userCar)
-    .set({ [dbPart]: newPartLvl })
-    .where(eq(tables.userCar.userId, id))
+  // Try to set referer reward
+  const refererReward = REFERER_REWARDS[(totalLvl + 1) as RefererRewardsKey];
+  if (refererReward) {
+    const referer = (
+      await db
+        .select({ userId: tables.userFriends.userId })
+        .from(tables.userFriends)
+        .limit(1)
+    )[0];
 
-  await db
-    .update(tables.users)
-    .set({ gas: gas - TEST_COST })
-    .where(eq(tables.users.id, id))
+    if (referer) {
+      await db
+        .update(tables.users)
+        .set({ gas: _getGasReward(refererReward) })
+        .where(and(eq(tables.users.id, referer.userId)));
+    }
+  }
 
   return {
     gas,
     level: newPartLvl,
-  }
-})
+  };
+});
+
+const _getTotalLvl = () => {
+  return sql<number>`(${tables.userCar.engineLvl} + ${tables.userCar.chassisLvl} + ${tables.userCar.brakesLvl} + ${tables.userCar.visualLvl})`;
+};
+
+const _getGasReward = (reward: number) => {
+  return sql<number>`(${tables.users.gas} + ${reward})`;
+};

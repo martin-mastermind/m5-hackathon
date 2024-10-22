@@ -1,19 +1,20 @@
 type Body = {
-  initData: string
-  refererId?: number
-}
+  initData: string;
+  refererId?: number;
+};
 
 export default defineEventHandler(async (event) => {
-  const { initData, refererId } = await readBody<Body>(event)
+  const { initData, refererId } = await readBody<Body>(event);
   const {
     id: telegramId,
     first_name: firstName,
     last_name: secondName,
     is_premium: isPremium,
-  } = getTelegramData(initData)
+  } = getTelegramData(initData);
 
-  const db = useDrizzle()
+  const db = useDrizzle();
 
+  // Get user if exists
   let user = (
     await db
       .select({
@@ -23,10 +24,11 @@ export default defineEventHandler(async (event) => {
       .from(tables.users)
       .innerJoin(tables.userCar, eq(tables.userCar.userId, tables.users.id))
       .where(eq(tables.users.telegramId, telegramId))
-  )[0]
+  )[0];
 
+  // Create new user
   if (!user) {
-    const avatar = await _getAvatar(telegramId)
+    const avatar = await _getAvatar(telegramId);
 
     const newUser = (
       await db
@@ -42,7 +44,7 @@ export default defineEventHandler(async (event) => {
           id: tables.users.id,
           ..._userFields,
         })
-    )[0]
+    )[0];
 
     const newUserCar = (
       await db
@@ -51,13 +53,13 @@ export default defineEventHandler(async (event) => {
           userId: newUser.id,
         })
         .returning(_carFields)
-    )[0]
+    )[0];
 
     if (refererId) {
       await db.insert(tables.userFriends).values({
-        userId: newUser.id,
-        friendId: refererId,
-      })
+        userId: refererId,
+        friendId: newUser.id,
+      });
     }
 
     user = {
@@ -69,15 +71,15 @@ export default defineEventHandler(async (event) => {
       car: {
         ...newUserCar,
       },
-    }
+    };
   }
 
-  addAuthCookie(event, telegramId)
+  addAuthCookie(event, telegramId);
 
   return {
     user,
-  }
-})
+  };
+});
 
 const _userFields = {
   avatar: tables.users.avatar,
@@ -85,32 +87,34 @@ const _userFields = {
   secondName: tables.users.secondName,
   isPremium: tables.users.isPremium,
   gas: tables.users.gas,
-}
+};
 
 const _carFields = {
   engineLvl: tables.userCar.engineLvl,
   chassisLvl: tables.userCar.chassisLvl,
   brakesLvl: tables.userCar.brakesLvl,
   visualLvl: tables.userCar.visualLvl,
-}
+};
 
 const _getAvatar = async (telegramId: number) => {
   if (!process.env.TELEGRAM_TOKEN) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'TELEGRAM_TOKEN is not defined',
-    })
+      statusMessage: "TELEGRAM_TOKEN is not defined",
+    });
   }
 
-  const { Bot } = await import('gramio')
-  const bot = new Bot(process.env.TELEGRAM_TOKEN)
+  const { Bot } = await import("gramio");
+  const bot = new Bot(process.env.TELEGRAM_TOKEN);
 
   const photos = await bot.api.getUserProfilePhotos({
     user_id: telegramId,
     limit: 1,
-  })
+  });
 
-  const avatar = await bot.api.getFile({ file_id: photos.photos[0][0].file_id })
+  const avatar = await bot.api.getFile({
+    file_id: photos.photos[0][0].file_id,
+  });
 
-  return `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${avatar.file_path}`
-}
+  return `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${avatar.file_path}`;
+};
