@@ -2,7 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../database/schema";
 
-export { sql, eq, and, or } from "drizzle-orm";
+export { sql, eq, and, or, count, desc } from "drizzle-orm";
 
 export const tables = schema;
 
