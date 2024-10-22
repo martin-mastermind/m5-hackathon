@@ -1,4 +1,4 @@
-import {createHmac} from 'crypto'
+import { createHmac } from 'node:crypto'
 
 export type TelegramInitData = {
   query_id: string
@@ -48,7 +48,7 @@ const _isValidTelegramData = (dirtyInitData: string) => {
 
   initData.sort()
 
-  const dataToCheck = [...initData.entries()].map(([key, value]) => key + '=' + value).join('\n')
+  const dataToCheck = [...initData.entries()].map(([key, value]) => `${key}=${value}`).join('\n')
 
   const secretKey = createHmac('sha256', 'WebAppData').update(process.env.TELEGRAM_TOKEN).digest()
   const parsedHash = createHmac('sha256', secretKey).update(dataToCheck).digest('hex')

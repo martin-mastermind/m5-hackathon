@@ -1,4 +1,4 @@
-import { H3Event } from 'h3'
+import type { H3Event } from 'h3'
 
 const AUTH_COOKIE = '_tid'
 
