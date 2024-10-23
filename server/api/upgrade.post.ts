@@ -61,10 +61,18 @@ export default defineEventHandler(async (event) => {
     )[0];
 
     if (referer) {
-      await db
-        .update(tables.users)
-        .set({ gas: _getGasReward(refererReward) })
-        .where(and(eq(tables.users.id, referer.userId)));
+      await Promise.allSettled([
+        db
+          .update(tables.users)
+          .set({ gas: _getGasReward(refererReward) })
+          .where(and(eq(tables.users.id, referer.userId))),
+
+        db.insert(tables.userFriendRewards).values({
+          userId: referer.userId,
+          friendId: id,
+          amount: refererReward,
+        }),
+      ]);
     }
   }
 

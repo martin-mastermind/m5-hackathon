@@ -48,6 +48,17 @@ export const userFriends = pgTable("user-friends", {
     .references(() => users.id),
 });
 
+export const userFriendRewards = pgTable("user-friend-rewards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id),
+  friendId: integer("friend_id")
+    .notNull()
+    .references(() => users.id),
+  amount: integer("amount").notNull().default(0),
+});
+
 export const tasks = pgTable("tasks", {
   id: serial("id").primaryKey(),
   logo: text("text").notNull(),

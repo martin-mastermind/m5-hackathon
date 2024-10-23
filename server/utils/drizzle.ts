@@ -2,7 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "../database/schema";
 
-export { sql, eq, and, or, count, desc } from "drizzle-orm";
+export { sql, eq, and, or, count, desc, sum } from "drizzle-orm";
 
 export const tables = schema;
 
@@ -16,6 +16,8 @@ export type UserClaim = typeof schema.userClaims.$inferSelect;
 export type UserCar = typeof schema.userCar.$inferSelect;
 
 export type UserFriend = typeof schema.userFriends.$inferSelect;
+
+export type UserFriendReward = typeof schema.userFriendRewards.$inferSelect;
 
 export type UserTask = typeof schema.userTasks.$inferSelect;
 
