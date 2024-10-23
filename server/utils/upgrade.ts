@@ -18,5 +18,5 @@ export const REFERER_REWARDS = {
 export type RefererRewardsKey = keyof typeof REFERER_REWARDS;
 
 export const getPartCost = (part: PartsNames, oldLevel: number) => {
-  return PARTS_BASE[part] * Math.pow(1.5, oldLevel);
+  return PARTS_BASE[part] * 1.5 ** oldLevel;
 };
